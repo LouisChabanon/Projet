@@ -1,6 +1,9 @@
 from Plantes import Plante
 import random
 
+# TODO:
+# - Implementer les mutations
+
 
 class Insecte():
     '''
@@ -65,8 +68,8 @@ class Insecte():
             else:
                 self._eat_combo -= 1
         else:
-            self.eat_combo += 1
-            if self.eat_combo >= 3:
+            self._eat_combo += 1
+            if self._eat_combo >= 3:
                 self._health += 1
 
     def se_reproduire(self, parcelle) -> None:
@@ -85,24 +88,39 @@ class Insecte():
                         self._time_since_last_reproduction = 0
                         partenaire.set_time_since_last_reproduction(0)
                         if self._sexe == "F":
-                            for i in range(self._taille_max_portee):
-                                attribus = self.__dict__
-                                for i in attribus:
-                                    if random.random() >= 0.5:
-                                        attribus[i] = partenaire.__dict__[i]
+                            taille_portee = self.taille_portee()
+                        else:
+                            taille_portee = partenaire.taille_portee()
+                        for i in range(taille_portee):
+                            attribus = self.__dict__
+                            mutation = False
+                            parite = False
+                            for j in attribus.keys():
+                                if random.random() >= 0.5:
+                                    parite = True
+                                    attribus[j] = partenaire.__dict__[j]
+                            if not parite:
+                                k = random.randint(0, len(attribus.keys())-1)
+                                attribus[list(attribus.keys())[k]] = partenaire.__dict__[
+                                    k]
+                            parcelle.add_occupant(Insecte(attribus["espece"], attribus["sexe"], attribus["max_health"], attribus["max_health"]/2,
+                                                          self._mobilite, self._resistance, self._tps_reproduction, self._taille_max_portee))
 
-                                parcelle.add_occupant(Insecte(attribus["espece"], attribus["sexe"], attribus["max_health"], attribus["max_health"]/2,
-                                                      self._mobilite, self._resistance, self._tps_reproduction, self._taille_max_portee))
+    def taille_portee(self) -> int:
+        '''
+        Methode permettant de calculer la taille de la portee d'un insecte
+        '''
+        return random.randint(1, self._taille_max_portee)
 
     def bouger(self, parcelle) -> None:
+        proba = self._mobilite
         if self._eat_combo <= -3:
-            if random.random() >= 2*self._mobilite:
-                return None
-        else:
-            if random.random() >= self._mobilite:
-                return None
-        parcelle.remove_occupant(self)
-        parcelle.get_voisin_aleatoire().add_occupant(self)
+            proba = 2*proba
+        if self._health <= 20:
+            proba = proba/2
+        if random.random() <= proba:
+            parcelle.remove_occupant(self)
+            parcelle.get_voisin_aleatoire().add_occupant(self)
 
     def mourir(self):
         del self
