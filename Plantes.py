@@ -1,6 +1,12 @@
 
+import random
+proba_drageonnage = dict()
 
-class Plantes():
+# TODO:
+# - Plantes Drageonantes
+
+
+class Plante():
     def __init__(self, espece: str, tps_maturite: int, nb_recoltes: int, domaine_humidite: list, duree_maturation: int, surface: float) -> None:
         self._espece = str(espece)
         self._tps_maturite = int(tps_maturite)
@@ -9,6 +15,7 @@ class Plantes():
         self._duree_maturation = int(duree_maturation)
         self._surface = float(surface)
 
+        self._proba_drageonnage = proba_drageonnage[self._espece]
         self._duree_insecticide = 0
         self._maturation = 0
         self._maturite = 0
@@ -37,13 +44,20 @@ class Plantes():
             if self._maturation >= self._duree_maturation:
                 self._nb_recoltes += 1
                 self._maturation = 0
-
-    def drageonner(self, parcelle) -> None:
-        '''
-        Methode permettant de faire drageonner une plante
-        '''
+            self.drageonner(parcelle)
+        if parcelle.has_insecticide():
+            self._duree_insecticide += 1
 
 
 class Drageonnantes(Plantes):
     def __init__(self, espece: str, tps_maturite: int, nb_recoltes: int, domaine_humidite: list, duree_maturation: int, surface: float, nb_drageons: int) -> None:
         pass
+
+    def drageonner(self, parcelle) -> None:
+        '''
+        Methode permettant de faire drageonner une plante
+        '''
+        if random.random() <= self._proba_drageonnage:
+            voisin = parcelle.get_voisin_aleatoire()
+            if not voisin.is_saturated():
+                voisin.add_occupant()

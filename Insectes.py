@@ -1,5 +1,7 @@
-from Plantes import Plante
+
 import random
+from Plantes import Plante
+
 
 # TODO:
 # - Implementer les mutations
@@ -82,29 +84,27 @@ class Insecte():
             partenaire = parcelle.choose_partenaire(self)
             if partenaire == None:
                 return None
-            if self._espece == partenaire.get_espece():
-                if self._sexe != partenaire.get_sexe():
-                    if self._eat_combo > 0 and partenaire.get_eat_combo() > 0:
-                        self._time_since_last_reproduction = 0
-                        partenaire.set_time_since_last_reproduction(0)
-                        if self._sexe == "F":
-                            taille_portee = self.taille_portee()
-                        else:
-                            taille_portee = partenaire.taille_portee()
-                        for i in range(taille_portee):
-                            attribus = self.__dict__
-                            mutation = False
-                            parite = False
-                            for j in attribus.keys():
-                                if random.random() >= 0.5:
-                                    parite = True
-                                    attribus[j] = partenaire.__dict__[j]
-                            if not parite:
-                                k = random.randint(0, len(attribus.keys())-1)
-                                attribus[list(attribus.keys())[k]] = partenaire.__dict__[
-                                    k]
-                            parcelle.add_occupant(Insecte(attribus["espece"], attribus["sexe"], attribus["max_health"], attribus["max_health"]/2,
-                                                          self._mobilite, self._resistance, self._tps_reproduction, self._taille_max_portee))
+            if self._eat_combo > 0 and partenaire.get_eat_combo() > 0:
+                self._time_since_last_reproduction = 0
+                partenaire.set_time_since_last_reproduction(0)
+                if self._sexe == "F":
+                    taille_portee = self.taille_portee()
+                else:
+                    taille_portee = partenaire.taille_portee()
+                for i in range(taille_portee):
+                    attribus = self.__dict__
+                    mutation = False
+                    parite = False
+                    for j in attribus.keys():
+                        if random.random() >= 0.5:
+                            parite = True
+                            attribus[j] = partenaire.__dict__[j]
+                    if not parite:
+                        k = random.randint(0, len(attribus.keys())-1)
+                        attribus[list(attribus.keys())[k]] = partenaire.__dict__[
+                            k]
+                    parcelle.add_insect(Insecte(attribus["espece"], attribus["sexe"], attribus["max_health"], attribus["max_health"]/2,
+                                                self._mobilite, self._resistance, self._tps_reproduction, self._taille_max_portee))
 
     def taille_portee(self) -> int:
         '''
