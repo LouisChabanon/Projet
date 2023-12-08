@@ -1,5 +1,5 @@
 import random
-from Plantes import Plantes
+from Plantes import Plante
 
 
 class Parcelle:

@@ -1,6 +1,8 @@
 
 import random
 proba_drageonnage = dict()
+proba_drageonnage["Solanum lycopersicum"] = 0.1
+proba_drageonnage["Tuberosum"] = 0.1
 
 # TODO:
 # - Plantes Drageonantes
@@ -49,7 +51,7 @@ class Plante():
             self._duree_insecticide += 1
 
 
-class Drageonnantes(Plantes):
+class Drageonnantes(Plante):
     def __init__(self, espece: str, tps_maturite: int, nb_recoltes: int, domaine_humidite: list, duree_maturation: int, surface: float, nb_drageons: int) -> None:
         pass
 
