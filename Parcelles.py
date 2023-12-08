@@ -20,11 +20,25 @@ class Parcelle:
     def get_insects(self):
         return self._insectes
 
+    def get_humidite(self):
+        return self._humidite
+
     def add_insect(self, insecte):
         self._insectes.append(insecte)
 
     def add_plante(self, plante):
         self._plantes.append(plante)
+
+    def has_engrais(self):
+        return self._has_engrais
+
+    def has_insecte(self):
+        if len(self._insectes) > 0:
+            return True
+        return False
+
+    def has_insecticide(self):
+        return self._has_insecticide
 
     def choose_partenaire(self, insecte):
         '''
@@ -49,6 +63,6 @@ class Parcelle:
             i.developper(self)
 
         for i in self._insectes:
-            i.manger(self)
+            i.manger()
             i.bouger(self)
             i.reproduire(self)

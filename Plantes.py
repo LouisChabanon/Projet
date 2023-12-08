@@ -1,11 +1,13 @@
 
 import random
+from Logger import Logger
 proba_drageonnage = dict()
 proba_drageonnage["Solanum lycopersicum"] = 0.1
 proba_drageonnage["Tuberosum"] = 0.1
 
 # TODO:
 # - Plantes Drageonantes
+logger = Logger()
 
 
 class Plante():
@@ -33,11 +35,13 @@ class Plante():
         '''
         Methode permettant de faire evoluer une plante
         '''
+        logger.info(f"Developpement de la plante {self._espece}")
         h = 0
         if parcelle.get_humidite() >= self._domaine_humidite[0] and parcelle.get_humidite() <= self._domaine_humidite[1]:
             h = 1
         dev = max(0, (1+parcelle.has_engrais()) *
                   (1+1*h - 1*parcelle.has_insecte()))
+        logger.info(f"Dev: {dev}")
 
         if self._maturite < self._tps_maturite:
             self._maturite += dev

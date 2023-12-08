@@ -29,11 +29,12 @@ class Colors:
 class Logger():
     '''A logger class for logging the simulation, and printing it to the console, using differents levels of verbosity and colors'''
 
-    def __init__(self) -> None:
-        pass
+    def __init__(self, debug: bool = False) -> None:
+        self._debug = debug
 
     def debug(self, msg: str) -> None:
-        print(f"\033[1;37m[DEBUG]\033[0m {msg}")
+        if self._debug:
+            print(f"\033[1;37m[DEBUG]\033[0m {msg}")
 
     def info(self, msg: str) -> None:
         print(f"\033[1;32m[INFO]\033[0m {msg}")

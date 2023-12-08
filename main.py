@@ -20,6 +20,7 @@ class Potager():
         for i in self._matrice:
             for j in i:
                 if j != 0:
+                    logger.debug(f" Updating parcelle {j.get_coordonees()}")
                     j.update(self)
 
 
@@ -32,8 +33,8 @@ def load_config(conf: str = "config.xml"):
 
     logger.info("Chargement de la configuration du potager")
 
-    matrice = [[0 for i in range(50)]
-               for j in range(50)]  # Change this
+    matrice = [[0 for i in range(20)]
+               for j in range(20)]  # Change this
     for i in root:
         if i.tag == "Parcelle":
             logger.debug(
@@ -45,7 +46,7 @@ def load_config(conf: str = "config.xml"):
                 logger.debug(f"Chargement de {j.tag}")
                 if j.tag == "Plante":
                     plante = Plante(j.attrib["Espece"], int(j.attrib["Maturite_pied"]), int(j.attrib["Nb_recolte"]), [
-                                    j.attrib["Humidite_min"], j.attrib["Humidite_max"]], int(j.attrib["Maturite_fruit"]), float(j.attrib["Surface"]))
+                                    float(j.attrib["Humidite_min"]), float(j.attrib["Humidite_max"])], int(j.attrib["Maturite_fruit"]), float(j.attrib["Surface"]))
                     parcelle.add_plante(plante)
                 elif j.tag == "Insecte":
                     pass
@@ -75,7 +76,9 @@ if __name__ == "__main__":
                         help="Chemin vers le fichier de configuration")
     parser.add_argument("-n", "--num", type=int, default=10,
                         help="Nombre de tours de simulation")
+    parser.add_argument("-d", "--debug", action="store_true",
+                        default=False, help="Active le mode debug")
     args = parser.parse_args()
 
-    logger = Logger()
+    logger = Logger(args.debug)
     main(args)
