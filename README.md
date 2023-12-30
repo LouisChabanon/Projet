@@ -10,8 +10,12 @@
 
 - [x] Fix developpement qui marche pas
 - [x] Fix Drageonante
-- [ ] Test Drageonante
+- [x] Test Drageonante
 
 ### Parcelles:
 
 ### Insectes:
+- [ ] Fix reproduction des insectes
+
+### Dispositif:
+- [ ] Finir implementation
