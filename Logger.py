@@ -1,47 +1,30 @@
 import logging
-
-
-class Colors:
-    """ ANSI color codes """
-    BLACK = "\033[0;30m"
-    RED = "\033[0;31m"
-    GREEN = "\033[0;32m"
-    BROWN = "\033[0;33m"
-    BLUE = "\033[0;34m"
-    PURPLE = "\033[0;35m"
-    CYAN = "\033[0;36m"
-    LIGHT_GRAY = "\033[0;37m"
-    DARK_GRAY = "\033[1;30m"
-    LIGHT_RED = "\033[1;31m"
-    LIGHT_GREEN = "\033[1;32m"
-    YELLOW = "\033[1;33m"
-    LIGHT_BLUE = "\033[1;34m"
-    LIGHT_PURPLE = "\033[1;35m"
-    LIGHT_CYAN = "\033[1;36m"
-    LIGHT_WHITE = "\033[1;37m"
-    BOLD = "\033[1m"
-    FAINT = "\033[2m"
-    ITALIC = "\033[3m"
-    UNDERLINE = "\033[4m"
-    BLINK = "\033[5m"
-    NEGATIVE = "\033[7m"
-    CROSSED = "\033[9m"
-    END = "\033[0m"
+import datetime
+import csv
 
 
 class Logger():
-    '''A logger class for logging the simulation, and printing it to the console, using differents levels of verbosity and colors'''
+    '''Classe permettant de gerer les logs de la simulation et le rapport final de la simulation au format csv'''
 
     def __init__(self, debug: bool = False) -> None:
         self._debug = debug
         logging.basicConfig(level=logging.DEBUG if debug else logging.INFO,
                             format='%(asctime)s %(levelname)s %(message)s',
-                            datefmt='%H:%M:%S', filename='simulation.log')
+                            datefmt='%H:%M:%S', filename=datetime.datetime.now().strftime("%Y%m%d-%H%M%S") + "-simulation.log")
+        self._resultats = dict()
+
+    def get_resultats(self) -> list:
+        return self._resultats
+
+    def set_resultats(self, resultats: list) -> None:
+        self._resultats = resultats
+
+    resultats = property(get_resultats, set_resultats)
 
     def debug(self, msg: str) -> None:
         if self._debug:
-            logging.debug(msg)
             print(f"\033[1;37m[DEBUG]\033[0m {msg}")
+        logging.debug(msg)
 
     def info(self, msg: str) -> None:
         logging.info(msg)
@@ -59,5 +42,14 @@ class Logger():
         logging.error(msg)
         print(f"\033[1;31m[CRITICAL]\033[0m {msg}")
 
-    def report(self, data: str) -> None:
-        pass
+    def create_csv(self) -> None:
+        '''Methode permettant de creer un fichier csv contenant les resultats de la simulation'''
+        total_recoltes = 0
+        self.info("Creation du fichier CSV")
+        for i in self._resultats.keys():
+            total_recoltes += self._resultats[i][1][2]
+        with open(datetime.datetime.now().strftime("%Y%m%d-%H%M%S") + "-resultats.csv", "w") as f:
+            w = csv.writer(f)
+            w.writerows(self._resultats.items())
+        self.info("Fichier CSV cree")
+        self.info(f"Total recoltes: {total_recoltes}")

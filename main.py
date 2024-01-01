@@ -2,6 +2,7 @@
 import argparse
 import xml.etree.ElementTree as ET
 
+from Interface import Interface
 from Logger import Logger
 from Parcelles import Parcelle
 from Insectes import Insecte
@@ -10,24 +11,40 @@ from Dispositifs import Dispositif, Programme
 
 
 class Potager():
+    ''' Classe representant le potager'''
+
     def __init__(self, matrice, logger) -> None:
         self._matrice = matrice
         self._logger = logger
         self._pas = 0
+        self._duree = args.num
 
-    def get_matrice(self):
+    def get_matrice(self) -> list:
         return self._matrice
 
-    def get_logger(self):
+    def get_logger(self) -> Logger:
         return self._logger
 
-    def get_pas(self):
+    def get_pas(self) -> int:
         return self._pas
 
+    def get_duree(self) -> int:
+        return self._duree
+
+    def set_duree(self, duree: int) -> None:
+        if int(duree) > 0:
+            self._duree = int(duree)
+        else:
+            self._logger.error("La duree doit etre un entier positif")
+            raise ValueError("La duree doit etre un entier positif")
+
+    duree = property(get_duree, set_duree)
+
     def run(self):
-        logger.info("Debut de la simulation")
-        for i in range(args.num):
-            logger.info(f"Tour {i}/{args.num}")
+        '''Methode gerant la simulation du potager'''
+        logger.info(f"Debut de la simulation pour {self._duree} tours")
+        for i in range(self._duree):
+            logger.debug(f"Tour {i}/{self._duree}")
             for i in self._matrice:
                 for j in i:
                     if j != 0:
@@ -36,21 +53,14 @@ class Potager():
                         j.update(self)
             self._pas += 1
         logger.info("Fin de la simulation")
-        logger.info(
-            f"Bilan de la simulation : {self.bilan()[0]} récoltes - {self.bilan()[1]} insectes")
+        self.bilan()
 
-    def bilan(self):
-        total_plantes, total_insectes = 0, 0
-        for ligne in self._matrice:
-            for parcelle in ligne:
-                if parcelle != 0:
-                    bp = parcelle.bilan()
-                    total_plantes += bp[0]
-                    total_insectes += bp[1]
-        return total_plantes, total_insectes
+    def bilan(self) -> None:
+        '''Methode permettant de faire le bilan de la simulation'''
+        self._logger.create_csv()
 
 
-def load_config(conf: str = "config.xml"):
+def load_config(conf: str = "config.xml") -> Potager:
     '''
     Fonction permettant de charger la configuration du potager depuis un fichier XML
     '''
@@ -108,23 +118,22 @@ def load_config(conf: str = "config.xml"):
     return potager
 
 
-def main(args):
+def main(args: object) -> None:
     logger.info("Simulation du potager")
     potager = load_config(args.config)
 
-    # Simulation
-    potager.run()
+    interface = Interface(potager)
 
 
 if __name__ == "__main__":
     # Argument parsing
     parser = argparse.ArgumentParser(description="Simulateur de potager")
     parser.add_argument("-c", "--config", type=str, default="config.xml",
-                        help="Chemin vers le fichier de configuration")
+                        help="Chemin vers le fichier de configuration au format XML")
     parser.add_argument("-n", "--num", type=int, default=100,
                         help="Nombre de tours de simulation")
     parser.add_argument("-d", "--debug", action="store_true",
-                        default=False, help="Active le mode debug")
+                        default=False, help="Active le mode verbose")
     args = parser.parse_args()
 
     logger = Logger(args.debug)
