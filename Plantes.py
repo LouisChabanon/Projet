@@ -1,6 +1,5 @@
 
 import random
-from Logger import Logger
 
 
 class Plante():
@@ -77,5 +76,5 @@ class Drageonnante(Plante):
                 drageon = Drageonnante(self._espece, self._tps_maturite, self._nb_max_recoltes,
                                        self._domaine_humidite, self._duree_maturation, self._surface, self._logger, proba_drageon=self._proba_drageonnage)
                 voisin.add_plante(drageon)
-                self._logger.info(
+                self._logger.debug(
                     f"Drageonnage de la plante {self._espece} vers la parcelle {voisin.coordonnes}")
