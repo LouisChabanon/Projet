@@ -103,7 +103,6 @@ class Insecte():
         if self._time_since_last_reproduction >= self._tps_reproduction:
             partenaire = parcelle.choose_partenaire(self)
             if partenaire == None:
-                self._logger.info("Pas de partenaire trouve")
                 return None
             if self._eat_combo > 0 and partenaire.get_eat_combo() > 0:
                 self._time_since_last_reproduction = 0
@@ -142,7 +141,7 @@ class Insecte():
                                      self._mobilite, self._resistance, self._tps_reproduction, self._taille_max_portee, self._logger)
                     enfant.health = int(enfant.health/2)
                     parcelle.add_insect(enfant)
-                    self._logger.info(
+                    self._logger.debug(
                         f"Reproduction de l'insecte {self._espece} dans la parcelle {parcelle.coordonnes}")
         else:
             self._time_since_last_reproduction += 1
@@ -160,10 +159,10 @@ class Insecte():
         if self._health <= 20:
             proba = proba/2
         if random.random() <= proba:
-            parcelle.remove_insect(self)
             parcelle.get_voisin_aleatoire().add_insect(self)
+            parcelle.remove_insect(self)
 
-    def mourir(self):
-        self._logger.info(
+    def mourir(self) -> None:
+        self._logger.debug(
             f"Mort de l'insecte {self._espece}")
         del self

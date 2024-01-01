@@ -13,26 +13,38 @@ class Dispositif():
         self._programmes = programmes
         self._rayon = int(rayon)
         self._parcelle = parcelle
+        self._voisins = None
 
     def update(self, pas: int) -> None:
         ''' Mise a jour du dispositif'''
+        if self._voisins == None:
+            # Une parcelle ne change pas de voisins et le rayon est fixe
+            self._voisins = self._parcelle.get_voisins(self._rayon)
         for programme in self._programmes:
             if pas == programme.debut:
-                if programme.type_produit == Type_Produit.ENGRAIS:
-                    self._parcelle.set_engrais(True)
-                elif programme.type_produit == Type_Produit.INSECTICIDE:
-                    self._parcelle.set_insecticide(True)
-                elif programme.type_produit == Type_Produit.EAU:
-                    self._parcelle.set_arrosage(True)
+                for voisin in self._voisins:
+                    if programme.type_produit == Type_Produit.ENGRAIS:
+                        self._parcelle.set_engrais(True)
+                        voisin.set_engrais(True)
+                    elif programme.type_produit == Type_Produit.INSECTICIDE:
+                        self._parcelle.set_insecticide(True)
+                        voisin.set_insecticide(True)
+                    elif programme.type_produit == Type_Produit.EAU:
+                        voisin.set_arrosage(True)
+                        self._parcelle.set_arrosage(True)
 
             elif pas == programme.debut + programme.duree:
                 programme.debut += programme.periode
-                if programme.type_produit == Type_Produit.ENGRAIS:
-                    self._parcelle.set_engrais(False)
-                elif programme.type_produit == Type_Produit.INSECTICIDE:
-                    self._parcelle.set_insecticide(False)
-                elif programme.type_produit == Type_Produit.EAU:
-                    self._parcelle.set_arrosage(False)
+                for voisin in self._voisins:
+                    if programme.type_produit == Type_Produit.ENGRAIS:
+                        self._parcelle.set_engrais(False)
+                        voisin.set_engrais(False)
+                    elif programme.type_produit == Type_Produit.INSECTICIDE:
+                        self._parcelle.set_insecticide(False)
+                        voisin.set_insecticide(False)
+                    elif programme.type_produit == Type_Produit.EAU:
+                        self._parcelle.set_arrosage(False)
+                        voisin.set_arrosage(False)
 
 
 class Programme():
@@ -43,6 +55,16 @@ class Programme():
         self._duree = int(duree)
         self._periode = int(periode)
         self._type_produit = type_produit
+
+        if self._debut < 0:
+            raise ValueError(
+                "Le debut du programme doit etre un entier positif")
+        if self._duree < 0:
+            raise ValueError(
+                "La duree du programme doit etre un entier positif")
+        if self._periode < 0:
+            raise ValueError(
+                "La periode du programme doit etre un entier positif")
 
     def get_debut(self) -> int:
         return self._debut

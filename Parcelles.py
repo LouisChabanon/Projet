@@ -30,6 +30,10 @@ class Parcelle:
     def get_humidite(self):
         return self._humidite
 
+    def get_logger(self) -> object:
+        return self._logger
+
+    logger = property(get_logger)
     humidite = property(get_humidite)
     coordonnes = property(get_coordonees)
 
@@ -77,7 +81,7 @@ class Parcelle:
     def set_insecticide(self, bool: bool):
         self._has_insecticide = bool(bool)
 
-    def choose_partenaire(self, insecte):
+    def choose_partenaire(self, insecte) -> object:
         '''
         Methode choisisant un partenaire pour la reproduction d'un insecte
         '''
@@ -86,30 +90,48 @@ class Parcelle:
                 return i
         return None
 
-    # Que 4 voisins + check si la case est pas 0 !
-    def get_voisin_aleatoire(self):
+    def get_voisins(self, rayon: int = 1) -> list:
         '''
-        Retourne un voisin aleatoire de la parcelle
+        Retourne les voisins dans un rayon donne
         '''
         matrice = self._potager.get_matrice()
         voisins = []
         x, y = self._coordonees
-        voisins = []
-        for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
-            nx, ny = x + dx, y + dy
-            if 0 <= nx < len(matrice) and 0 <= ny < len(matrice[0]) and matrice[nx][ny] != 0:
-                voisins.append(matrice[nx][ny])
+        for dx in range(-rayon, rayon + 1):
+            for dy in range(-rayon, rayon + 1):
+                if abs(dx) + abs(dy) <= rayon and (dx, dy) != (0, 0):
+                    nx, ny = x + dx, y + dy
+                    if 0 <= nx < len(matrice) and 0 <= ny < len(matrice[0]) and matrice[nx][ny] != 0:
+                        voisins.append(matrice[nx][ny])
+        return voisins
+
+    # Que 4 voisins + check si la case est pas 0 !
+    def get_voisin_aleatoire(self, rayon=1) -> object:
+        '''
+        Retourne un voisin aleatoire de la parcelle
+        '''
+        voisins = self.get_voisins(rayon)
 
         if voisins:
             return random.choice(voisins)
         else:
+            # Si les voisins sont tous des 0 (ie pas des parcelles)
             return None
 
-    def update(self, potager):
+    def update(self, potager) -> None:
+        '''
+        Methode mettant a jour la parcelle:
+        - Mise a jour de l'humidite
+        - Mise a jour des plantes
+        - Mise a jour des insectes
+        - Mise a jour du dispositif
+        '''
         self._potager = potager
 
+        total_recoltes = 0
+
         if self._est_arrose == True:
-            self._humidite += 0.5*self._humidite
+            self._humidite += 0.5*self._humidite  # Doute sur l'ennoncé (+50%)
             if self._humidite > 1:
                 self._humidite = 1
         else:
@@ -117,10 +139,14 @@ class Parcelle:
 
         for i in self._plantes:
             i.developper(self)
+            total_recoltes += i.nb_recoltes
 
         for i in self._insectes:
             i.manger(self)
-            if i.get_health() <= 0 or i.life_time < potager.get_pas() or self._has_insecticide == True:
+            if i.get_health() <= 0 or i.life_time < potager.get_pas():
+                self.remove_insect(i)
+                i.mourir()
+            elif self._has_insecticide and random.random() <= i.get_resistance():
                 self.remove_insect(i)
                 i.mourir()
             else:
@@ -128,13 +154,12 @@ class Parcelle:
                 i.se_reproduire(self)
         if self._dispositif:
             self._dispositif.update(self._potager.get_pas())
-        self._logger.info(
+        self._logger.debug(
             f"[Parcelle {self._coordonees}]: {len(self._plantes)} plantes - {len(self._insectes)} insectes - Dispositif: {False if self._dispositif == None else True}")
 
-    def bilan(self):
-        total_plantes, total_insectes = 0, 0
-        for plante in self._plantes:
-            total_plantes += plante.get_recoltes()
-        for insecte in self._insectes:
-            total_insectes += 1
-        return total_plantes, total_insectes
+        if not self._coordonees in self._logger.resultats.keys():
+            self._logger.resultats[self._coordonees] = [[len(self._plantes), len(self._insectes), total_recoltes,
+                                                        self._est_arrose, self._has_engrais, self._has_insecticide, self._humidite]]
+        else:
+            self._logger.resultats[self._coordonees] += [[len(self._plantes), len(self._insectes), total_recoltes,
+                                                         self._est_arrose, self._has_engrais, self._has_insecticide, self._humidite]]
