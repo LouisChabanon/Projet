@@ -19,12 +19,12 @@ class Insecte():
         self._health = int(max_health)
         self._life_time = int(life_time)
         self._mobilite = float(mobilite)
-        self._resistance = int(resistance)
+        self._resistance = float(resistance)
         self._tps_reproduction = int(tps_reproduction)
         self._taille_max_portee = int(taille_max_portee)
 
         self._time_since_last_reproduction = 0
-        self._eat_combo = 0
+        self._eat_combo = 0  # Nombre de jours consecutifs ou l'insecte a mangé
 
         self._logger = logger
 
@@ -39,13 +39,10 @@ class Insecte():
     def get_health(self) -> int:
         return self._health
 
-    def set_health(self, new_health: int) -> None:
-        self._health = new_health
-
     def get_mobilite(self) -> float:
         return self._mobilite
 
-    def get_resistance(self) -> int:
+    def get_resistance(self) -> float:
         return self._resistance
 
     def get_tps_reproduction(self) -> int:
@@ -55,13 +52,13 @@ class Insecte():
         return self._time_since_last_reproduction
 
     def set_time_since_last_reproduction(self, new_time: int) -> None:
-        self._time_since_last_reproduction = new_time
+        self._time_since_last_reproduction = int(new_time)
 
     def get_taille_max_portee(self) -> int:
         return self._taille_max_portee
 
     def set_health(self, new_health: int) -> None:
-        self._health = new_health
+        self._health = int(new_health)
 
     def get_eat_combo(self) -> int:
         return self._eat_combo
@@ -80,8 +77,8 @@ class Insecte():
     def manger(self, parcelle) -> None:
         '''
         Methode permettant de faire manger un insecte
-        L'insecte essaye de se nouriur de la plante dans la parcelle, si elle n'est pas presente, il perd de la vie.
-        Si elle est presente, il gagne de la vie et un combo est incremente.
+        L'insecte essaye de se nourir de la plante dans la parcelle, si elle n'est pas presente, il perd de la vie.
+        Si elle est presente, il gagne de la vie et un combo est incrementé.
         '''
         if len(parcelle.get_plantes()) == 0:
             self._health -= 1
@@ -114,7 +111,7 @@ class Insecte():
                     taille_portee = partenaire.taille_portee()
 
                 for i in range(taille_portee):
-                    attribus = self.__dict__
+                    attribus = self.__dict__  # Dictionnaire contenant les attributs de l'insecte
                     pas_mutable = ["_espece", "_sexe", "_logger"]
                     entiers = ["_max_health", "_life_time", "_resistance",
                                "_tps_reproduction", "_taille_max_portee"]
@@ -122,7 +119,7 @@ class Insecte():
                     parite = False  # True si au moins un attribut a ete herite du partenaire
                     for j in attribus.keys():
                         if random.random() >= 0.5:
-                            parite = True
+                            parite = True  # Au moins un attribut herite du partenaire
                             attribus[j] = partenaire.__dict__[j]
                         if random.random() <= 0.05 and mutation == False and j not in pas_mutable:
                             mutation = True
@@ -132,10 +129,14 @@ class Insecte():
                                 attribus[j] = round(attribus[j])
 
                     if not parite:
-                        # -2 pour ne pas prendre en compte le logger
-                        k = random.randint(0, len(attribus.keys())-2)
-                        attribus[list(attribus.keys())[k]] = partenaire.__dict__[
-                            list(attribus.keys())[k]]
+                        # Si aucun attribut n'a ete herite du partenaire, on en herite un aleatoirement
+                        while not parite:
+                            # -2 pour ne pas prendre en compte le logger
+                            k = random.randint(0, len(attribus.keys())-2)
+                            if list(attribus.keys())[k] not in pas_mutable:
+                                parite = True
+                                attribus[list(attribus.keys())[k]] = partenaire.__dict__[
+                                    list(attribus.keys())[k]]
 
                     enfant = Insecte(attribus["_espece"], attribus["_sexe"], attribus["_max_health"], attribus["_life_time"],
                                      self._mobilite, self._resistance, self._tps_reproduction, self._taille_max_portee, self._logger)
@@ -153,6 +154,9 @@ class Insecte():
         return random.randint(1, self._taille_max_portee)
 
     def bouger(self, parcelle) -> None:
+        '''
+        Methode permettant a l'insecte de se deplacer
+        '''
         proba = self._mobilite
         if self._eat_combo <= -3:
             proba = 2*proba
