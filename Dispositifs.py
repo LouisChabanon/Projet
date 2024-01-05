@@ -1,9 +1,9 @@
 
 class Type_Produit():
     ''' Enumeration des types de produits'''
-    EAU = 0
-    ENGRAIS = 1
-    INSECTICIDE = 2
+    EAU = "Eau"
+    ENGRAIS = "Engrais"
+    INSECTICIDE = "Insecticide"
 
 
 class Dispositif():
@@ -50,11 +50,13 @@ class Dispositif():
 class Programme():
     ''' Programme d'un dispositif '''
 
-    def __init__(self, debut: int, duree: int, periode: int, type_produit) -> None:
+    def __init__(self, debut: int, duree: int, periode: int, type_produit: str) -> None:
         self._debut = int(debut)
         self._duree = int(duree)
         self._periode = int(periode)
         self._type_produit = type_produit
+        if self._type_produit == Type_Produit.INSECTICIDE or self._type_produit == Type_Produit.ENGRAIS:
+            self._duree = 5
 
         if self._debut < 0:
             raise ValueError(
