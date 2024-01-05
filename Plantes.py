@@ -3,6 +3,10 @@ import random
 
 
 class Plante():
+    '''
+    Classe representant une plante
+    '''
+
     def __init__(self, espece: str, tps_maturite: int, nb_max_recoltes: int, domaine_humidite: list, duree_maturation: int, surface: float, logger) -> None:
         self._espece = str(espece)
         self._tps_maturite = int(tps_maturite)
@@ -57,6 +61,10 @@ class Plante():
 
 
 class Drageonnante(Plante):
+    '''
+    Classe representant une plante drageonnante
+    '''
+
     def __init__(self, espece: str, tps_maturite: int, nb_max_recoltes: int, domaine_humidite: list, duree_maturation: int, surface: float, logger, proba_drageon: float) -> None:
         super().__init__(espece, tps_maturite, nb_max_recoltes,
                          domaine_humidite, duree_maturation, surface, logger)

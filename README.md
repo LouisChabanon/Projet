@@ -1,21 +1,21 @@
 # Simulation potager
 
-## TODO:
+Ce programme simule un potager contenant des parcelles des plantes des insectes et des dispositifs
 
-### Main:
+### Installation
+Python 3 est requis
 
-- [ ] Fix taille initialisation matrice
+```bash
+git clone https://github.com/louischabanon/Projet
+cd Projet
+pip install -r requirements.txt
+```
 
-### Plantes:
+### Utilisation
 
-- [x] Fix developpement qui marche pas
-- [x] Fix Drageonante
-- [x] Test Drageonante
+exemple d'utilisation du programme avec interface sur une durée de 100 pas de simulation
+```bash
+python3 main.py -i -c config.xml -n 100
+```
 
-### Parcelles:
-
-### Insectes:
-- [ ] Fix reproduction des insectes
-
-### Dispositif:
-- [ ] Finir implementation
+FAIRE RAPPORT ET GRAPH A LA FIN................................
