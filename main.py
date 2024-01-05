@@ -1,6 +1,8 @@
 
 import argparse
 import xml.etree.ElementTree as ET
+import datetime
+import matplotlib.pyplot as plt
 
 from Interface import Interface
 from Logger import Logger
@@ -13,7 +15,7 @@ from Dispositifs import Dispositif, Programme
 class Potager():
     ''' Classe representant le potager'''
 
-    def __init__(self, matrice, logger) -> None:
+    def __init__(self, matrice: list[list], logger: Logger) -> None:
         self._matrice = matrice
         self._logger = logger
         self._pas = 0
@@ -40,6 +42,44 @@ class Potager():
 
     duree = property(get_duree, set_duree)
 
+    def create_xml(self) -> None:
+        '''Methode permettant de creer un fichier XML contenant les resultats de la simulation'''
+        root = ET.Element("resultats")
+        for i in range(self._pas):
+            tour = ET.SubElement(root, "tour", name=str(i))
+            for ligne in self._matrice:
+                for p in ligne:
+                    if p != 0:
+                        recoltes = p.recoltes
+                        parcelle = ET.SubElement(
+                            tour, "parcelle", pos=str(p.get_coordonees()), recoltes=str(recoltes[i][0]), insecticide=str(recoltes[i][1]), nb_insectes=str(recoltes[i][2]))
+        tree = ET.ElementTree(root)
+        ET.indent(tree, space="\t", level=0)
+        try:
+            tree.write("resultats/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S") +
+                       "-resultats.xml", encoding="UTF-8")
+        except Exception as e:
+            self._logger.error("Impossible de creer le fichier XML")
+            raise Exception(f"Impossible de creer le fichier XML: {str(e)}")
+        logger.info("Fichier XML cree")
+
+    def plot(self) -> None:
+        '''Methode permettant de creer un graphique des resultats de la simulation'''
+        plantes = [0 for i in range(self._pas)]
+        insectes = [0 for j in range(self._pas)]
+        for i in range(self._pas):
+            for ligne in self._matrice:
+                for p in ligne:
+                    if p != 0:
+                        plantes[i] += p.recoltes[i][0]
+                        insectes[i] += p.recoltes[i][2]
+        plt.plot([i for i in range(self._pas)], plantes, label="Recoltes")
+        plt.plot([i for i in range(self._pas)], insectes, label="Insectes")
+        plt.xlabel("Tours")
+        plt.ylabel("Nombre")
+        plt.legend()
+        plt.show()
+
     def run(self):
         '''Methode gerant la simulation du potager'''
         logger.info(f"Debut de la simulation pour {self._duree} tours")
@@ -53,11 +93,9 @@ class Potager():
                         j.update(self)
             self._pas += 1
         logger.info("Fin de la simulation")
-        self.bilan()
-
-    def bilan(self) -> None:
-        '''Methode permettant de faire le bilan de la simulation'''
-        self._logger.create_csv()
+        logger.info("Creation du fichier XML")
+        self.create_xml()
+        self.plot()
 
 
 def load_config(conf: str = "config.xml") -> Potager:
@@ -121,8 +159,11 @@ def load_config(conf: str = "config.xml") -> Potager:
 def main(args: object) -> None:
     logger.info("Simulation du potager")
     potager = load_config(args.config)
-
-    interface = Interface(potager)
+    if args.interface:
+        interface = Interface(potager)
+        interface.start()
+    else:
+        potager.run()
 
 
 if __name__ == "__main__":
@@ -134,6 +175,8 @@ if __name__ == "__main__":
                         help="Nombre de tours de simulation")
     parser.add_argument("-d", "--debug", action="store_true",
                         default=False, help="Active le mode verbose")
+    parser.add_argument("-i", "--interface", action="store_true",
+                        default=False, help="Active l'interface graphique")
     args = parser.parse_args()
 
     logger = Logger(args.debug)

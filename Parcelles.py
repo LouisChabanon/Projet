@@ -14,9 +14,10 @@ class Parcelle:
         self._potager = None
         self._logger = logger
         self._dispositif = None
+        self._recoltes = []
 
     def set_arrosage(self, bool):
-        self._est_arrose = bool(bool)
+        self._est_arrose = bool
 
     def get_coordonees(self):
         return self._coordonees
@@ -33,9 +34,13 @@ class Parcelle:
     def get_logger(self) -> object:
         return self._logger
 
+    def get_recoltes(self):
+        return self._recoltes
+
     logger = property(get_logger)
     humidite = property(get_humidite)
     coordonnes = property(get_coordonees)
+    recoltes = property(get_recoltes)
 
     def get_dispositif(self):
         if self._dispositif:
@@ -79,7 +84,7 @@ class Parcelle:
         return self._has_insecticide
 
     def set_insecticide(self, bool: bool):
-        self._has_insecticide = bool(bool)
+        self._has_insecticide = bool
 
     def choose_partenaire(self, insecte) -> object:
         '''
@@ -127,8 +132,7 @@ class Parcelle:
         - Mise a jour du dispositif
         '''
         self._potager = potager
-
-        total_recoltes = 0
+        self._recoltes.append([0, self._has_insecticide, []])
 
         if self._est_arrose == True:
             self._humidite += 0.5*self._humidite  # Doute sur l'ennoncé (+50%)
@@ -139,27 +143,26 @@ class Parcelle:
 
         for i in self._plantes:
             i.developper(self)
-            total_recoltes += i.nb_recoltes
+            self._recoltes[self._potager.get_pas()][0] += i.nb_recoltes
 
         for i in self._insectes:
             i.manger(self)
             if i.get_health() <= 0 or i.life_time < potager.get_pas():
                 self.remove_insect(i)
                 i.mourir()
-            elif self._has_insecticide and random.random() <= i.get_resistance():
+            elif self._has_insecticide and random.random() >= i.get_resistance():
                 self.remove_insect(i)
                 i.mourir()
             else:
                 i.bouger(self)
                 i.se_reproduire(self)
+
+        if len(self._insectes) != 0:
+            self._recoltes[self._potager.get_pas()][2] = len(self._insectes)
+        else:
+            self._recoltes[self._potager.get_pas()][2] = 0
+
         if self._dispositif:
             self._dispositif.update(self._potager.get_pas())
         self._logger.debug(
             f"[Parcelle {self._coordonees}]: {len(self._plantes)} plantes - {len(self._insectes)} insectes - Dispositif: {False if self._dispositif == None else True}")
-
-        if not self._coordonees in self._logger.resultats.keys():
-            self._logger.resultats[self._coordonees] = [[len(self._plantes), len(self._insectes), total_recoltes,
-                                                        self._est_arrose, self._has_engrais, self._has_insecticide, self._humidite]]
-        else:
-            self._logger.resultats[self._coordonees] += [[len(self._plantes), len(self._insectes), total_recoltes,
-                                                         self._est_arrose, self._has_engrais, self._has_insecticide, self._humidite]]
