@@ -1,6 +1,12 @@
 
 import tkinter as TK
 
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.backends._backend_tk import NavigationToolbar2Tk
+# Implement the default Matplotlib key bindings.
+from matplotlib.backend_bases import key_press_handler
+from matplotlib.figure import Figure
+
 
 class Interface():
     def __init__(self, potager) -> None:
@@ -28,3 +34,20 @@ class Interface():
 
     def start(self) -> None:
         self.fenetre.mainloop()
+
+    def plot_resultat(self, pas: int, recoltes: list, insectes: list) -> None:
+        fenetre_resultat = TK.Tk()
+        fig = Figure(figsize=(5, 4), dpi=100)
+        fig.add_subplot(211).plot(
+            [i for i in range(pas)], recoltes, label="recoltes", color="red")
+        fig.add_subplot(212).plot(
+            [i for i in range(pas)], insectes, label="insectes")
+        fig.legend()
+        canvas = FigureCanvasTkAgg(fig, master=fenetre_resultat)
+        canvas.draw()
+        canvas.get_tk_widget().pack(side=TK.TOP, fill=TK.BOTH, expand=1)
+
+        toolbar = NavigationToolbar2Tk(canvas, fenetre_resultat)
+        toolbar.update()
+        canvas.get_tk_widget().pack(side=TK.TOP, fill=TK.BOTH, expand=1)
+        fenetre_resultat.mainloop()

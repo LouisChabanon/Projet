@@ -63,8 +63,8 @@ class Potager():
             raise Exception(f"Impossible de creer le fichier XML: {str(e)}")
         logger.info("Fichier XML cree")
 
-    def plot(self) -> None:
-        '''Methode permettant de creer un graphique des resultats de la simulation'''
+    def plot(self) -> list:
+        '''Methode permettant de creer un graphique des resultats sur l'interface de la simulation'''
         plantes = [0 for i in range(self._pas)]
         insectes = [0 for j in range(self._pas)]
         for i in range(self._pas):
@@ -73,12 +73,7 @@ class Potager():
                     if p != 0:
                         plantes[i] += p.recoltes[i][0]
                         insectes[i] += p.recoltes[i][2]
-        plt.plot([i for i in range(self._pas)], plantes, label="Recoltes")
-        plt.plot([i for i in range(self._pas)], insectes, label="Insectes")
-        plt.xlabel("Tours")
-        plt.ylabel("Nombre")
-        plt.legend()
-        plt.show()
+        return [self._pas, plantes, insectes]
 
     def run(self):
         '''Methode gerant la simulation du potager'''
@@ -95,7 +90,6 @@ class Potager():
         logger.info("Fin de la simulation")
         logger.info("Creation du fichier XML")
         self.create_xml()
-        self.plot()
 
 
 def load_config(conf: str = "config.xml") -> Potager:
@@ -162,6 +156,8 @@ def main(args: object) -> None:
     if args.interface:
         interface = Interface(potager)
         interface.start()
+        resultats = potager.plot()
+        interface.plot_resultat(resultats[0], resultats[1], resultats[2])
     else:
         potager.run()
 

@@ -17,5 +17,3 @@ exemple d'utilisation du programme avec interface sur une durée de 100 pas de s
 ```bash
 python3 main.py -i -c config.xml -n 100
 ```
-
-FAIRE RAPPORT ET GRAPH A LA FIN................................
