@@ -16,7 +16,14 @@ class Dispositif():
         self._voisins = None
 
     def update(self, pas: int) -> None:
-        ''' Mise a jour du dispositif'''
+        '''Mise a jour du dispositif.
+
+        Args:
+            pas (int): Le pas de mise à jour.
+
+        Returns:
+            None
+        '''
         if self._voisins == None:
             # Une parcelle ne change pas de voisins et le rayon est fixe
             self._voisins = self._parcelle.get_voisins(self._rayon)

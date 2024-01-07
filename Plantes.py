@@ -15,7 +15,6 @@ class Plante():
         self._duree_maturation = int(duree_maturation)
         self._surface = float(surface)
 
-        self._duree_insecticide = 0
         self._maturation = 0
         self._maturite = 0
         self._nb_recoltes = 0
@@ -41,6 +40,12 @@ class Plante():
     def developper(self, parcelle) -> None:
         '''
         Methode permettant de faire evoluer une plante
+
+        Parameters:
+            parcelle (Parcelle): La parcelle sur laquelle la plante se développe.
+
+        Returns:
+            None
         '''
         h = 0
         if parcelle.get_humidite() >= self._domaine_humidite[0] and parcelle.get_humidite() <= self._domaine_humidite[1]:
@@ -56,8 +61,6 @@ class Plante():
                 self._maturation = 0
                 if self._nb_max_recoltes > self._nb_recoltes:
                     self._nb_recoltes += 1
-        if parcelle.has_insecticide():
-            self._duree_insecticide += 1
 
 
 class Drageonnante(Plante):

@@ -73,6 +73,12 @@ class Parcelle:
         return False
 
     def is_saturated(self):
+        """
+        Vérifie si la parcelle est saturée en plantes.
+
+        Returns:
+            bool: True si la somme de la surface de toutes les plantes dans la parcelle est supérieure ou égale à 1, False sinon.
+        """
         somme = 0
         for plante in self._plantes:
             somme += plante.surface
@@ -95,9 +101,15 @@ class Parcelle:
                 return i
         return None
 
-    def get_voisins(self, rayon: int = 1) -> list:
+    def get_voisins(self, rayon: int = 1) -> list[int]:
         '''
         Retourne les voisins dans un rayon donne
+
+        Parameters:
+            rayon (int): Le rayon dans lequel chercher les voisins. Par défaut, la valeur est 1.
+
+        Returns:
+            list[int]: Une liste des voisins trouvés dans le rayon donné.
         '''
         matrice = self._potager.get_matrice()
         voisins = []
@@ -110,10 +122,15 @@ class Parcelle:
                         voisins.append(matrice[nx][ny])
         return voisins
 
-    # Que 4 voisins + check si la case est pas 0 !
     def get_voisin_aleatoire(self, rayon=1) -> object:
         '''
-        Retourne un voisin aleatoire de la parcelle
+        Retourne un voisin aleatoire de la parcelle.
+
+        Parameters:
+            rayon (int): Le rayon de recherche des voisins. Par défaut, la valeur est 1.
+
+        Returns:
+            object: Un voisin aléatoire de la parcelle. Si aucun voisin n'est trouvé, retourne None.
         '''
         voisins = self.get_voisins(rayon)
 
@@ -130,6 +147,12 @@ class Parcelle:
         - Mise a jour des plantes
         - Mise a jour des insectes
         - Mise a jour du dispositif
+
+        Parameters:
+            potager (Potager): L'objet Potager contenant les informations sur le jardin
+
+        Returns:
+            None
         '''
         self._potager = potager
         self._recoltes.append([0, self._has_insecticide, []])

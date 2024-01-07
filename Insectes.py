@@ -3,10 +3,6 @@ import random
 import numpy as np
 
 
-# TODO:
-# - Implementer les mutations
-
-
 class Insecte():
     '''
     Classe Insectes definissant le comportement des insectes dans la simulation
@@ -79,6 +75,12 @@ class Insecte():
         Methode permettant de faire manger un insecte
         L'insecte essaye de se nourir de la plante dans la parcelle, si elle n'est pas presente, il perd de la vie.
         Si elle est presente, il gagne de la vie et un combo est incrementé.
+
+        Parameters:
+            parcelle (Parcelle): La parcelle contenant les plantes.
+
+        Returns:
+            None
         '''
         if len(parcelle.get_plantes()) == 0:
             self._health -= 1
@@ -96,10 +98,16 @@ class Insecte():
         Methode permettant de faire se reproduire un insecte,
         L'insecte essaye de se reproduire avec un partenaire de la meme espece et de sexe oppose.
         Si il y a un partenaire, et que les deux insectes ont un combo de nourriture positif, ils se reproduisent.
+
+        Parameters:
+            parcelle (Parcelle): La parcelle dans laquelle l'insecte se trouve.
+
+        Returns:
+            None
         '''
         if self._time_since_last_reproduction >= self._tps_reproduction:
             partenaire = parcelle.choose_partenaire(self)
-            if partenaire == None:
+            if partenaire is None:
                 return None
             if self._eat_combo > 0 and partenaire.get_eat_combo() > 0:
                 self._time_since_last_reproduction = 0
@@ -113,15 +121,14 @@ class Insecte():
                 for i in range(taille_portee):
                     attribus = self.__dict__  # Dictionnaire contenant les attributs de l'insecte
                     pas_mutable = ["_espece", "_sexe", "_logger"]
-                    entiers = ["_max_health", "_life_time", "_resistance",
-                               "_tps_reproduction", "_taille_max_portee"]
+                    entiers = ["_max_health", "_life_time", "_resistance", "_tps_reproduction", "_taille_max_portee"]
                     mutation = False
                     parite = False  # True si au moins un attribut a ete herite du partenaire
                     for j in attribus.keys():
                         if random.random() >= 0.5:
                             parite = True  # Au moins un attribut herite du partenaire
                             attribus[j] = partenaire.__dict__[j]
-                        if random.random() <= 0.05 and mutation == False and j not in pas_mutable:
+                        if random.random() <= 0.05 and not mutation and j not in pas_mutable:
                             mutation = True
                             attribus[j] = np.random.normal(
                                 attribus[j], 0.05 * attribus[j])
@@ -135,11 +142,9 @@ class Insecte():
                             k = random.randint(0, len(attribus.keys())-2)
                             if list(attribus.keys())[k] not in pas_mutable:
                                 parite = True
-                                attribus[list(attribus.keys())[k]] = partenaire.__dict__[
-                                    list(attribus.keys())[k]]
+                                attribus[list(attribus.keys())[k]] = partenaire.__dict__[list(attribus.keys())[k]]
 
-                    enfant = Insecte(attribus["_espece"], attribus["_sexe"], attribus["_max_health"], attribus["_life_time"],
-                                     self._mobilite, self._resistance, self._tps_reproduction, self._taille_max_portee, self._logger)
+                    enfant = Insecte(attribus["_espece"], attribus["_sexe"], attribus["_max_health"], attribus["_life_time"],self._mobilite, self._resistance, self._tps_reproduction, self._taille_max_portee, self._logger)
                     enfant.health = int(enfant.health/2)
                     parcelle.add_insect(enfant)
                     self._logger.debug(
@@ -150,12 +155,21 @@ class Insecte():
     def taille_portee(self) -> int:
         '''
         Methode permettant de calculer la taille de la portee d'un insecte
+
+        Returns:
+            int: La taille de la portee d'un insecte
         '''
         return random.randint(1, self._taille_max_portee)
 
     def bouger(self, parcelle) -> None:
         '''
         Methode permettant a l'insecte de se deplacer
+
+        Parameters:
+            parcelle (Parcelle): La parcelle actuelle de l'insecte
+
+        Returns:
+            None
         '''
         proba = self._mobilite
         if self._eat_combo <= -3:
