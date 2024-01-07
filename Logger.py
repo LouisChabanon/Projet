@@ -7,7 +7,7 @@ class Logger():
 
     def __init__(self, debug: bool = False) -> None:
         self._debug = debug
-        logging.basicConfig(level=logging.DEBUG if debug else logging.INFO,
+        logging.basicConfig(level=logging.DEBUG,
                             format='%(asctime)s %(levelname)s %(message)s',
                             datefmt='%H:%M:%S', filename="logs/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S") + "-simulation.log")
 

@@ -2,7 +2,7 @@
 import argparse
 import xml.etree.ElementTree as ET
 import datetime
-import matplotlib.pyplot as plt
+import time
 
 from Interface import Interface
 from Logger import Logger
@@ -64,7 +64,8 @@ class Potager():
         logger.info("Fichier XML cree")
 
     def plot(self) -> list:
-        '''Methode permettant de creer un graphique des resultats sur l'interface de la simulation'''
+        '''Methode permettant de renvoyer les resultats necessaire à l'affichage sur l'interface de la simulation
+        :return: liste contenant le nombre de pas, le nombre de recoltes et le nombre d'insectes par pas'''
         plantes = [0 for i in range(self._pas)]
         insectes = [0 for j in range(self._pas)]
         for i in range(self._pas):
@@ -78,6 +79,7 @@ class Potager():
     def run(self):
         '''Methode gerant la simulation du potager'''
         logger.info(f"Debut de la simulation pour {self._duree} tours")
+        start = time.time()
         for i in range(self._duree):
             logger.debug(f"Tour {i}/{self._duree}")
             for i in self._matrice:
@@ -87,7 +89,8 @@ class Potager():
                             f" Updating parcelle {j.get_coordonees()}")
                         j.update(self)
             self._pas += 1
-        logger.info("Fin de la simulation")
+        end = time.time()
+        logger.info(f"Fin de la simulation en {(end-start):.2} secondes")
         logger.info("Creation du fichier XML")
         self.create_xml()
 
@@ -95,6 +98,8 @@ class Potager():
 def load_config(conf: str = "config.xml") -> Potager:
     '''
     Fonction permettant de charger la configuration du potager depuis un fichier XML
+    :param conf: chemin vers le fichier XML contenant la configuration du potager
+    :return: Objet Potager
     '''
     tree = ET.parse(conf)
     root = tree.getroot()
@@ -106,18 +111,18 @@ def load_config(conf: str = "config.xml") -> Potager:
     nb_drageons = 0
     nb_insectes = 0
     nb_dispositifs = 0
-    matrice = [[0 for i in range(20)]
-               for j in range(20)]  # Change this
+    matrice = [[0 for i in range(20)] for j in range(20)]
+
     for i in root:
         if i.tag == "Parcelle":
-            logger.debug(
-                f"Chargement de la parcelle {i.attrib['Pos_x']}, {i.attrib['Pos_y']}")
-            parcelle = Parcelle((int(i.attrib["Pos_x"]), int(
-                i.attrib["Pos_y"])), [], [], 0.5, False, False, logger)
+            logger.debug(f"Chargement de la parcelle {i.attrib['Pos_x']}, {i.attrib['Pos_y']}")
+            parcelle = Parcelle((int(i.attrib["Pos_x"]), int(i.attrib["Pos_y"])), [], [], 0.5, False, False, logger)
             matrice[int(i.attrib["Pos_x"])][int(i.attrib["Pos_y"])] = parcelle
             nb_parcelles += 1
+
             for j in i:
                 logger.debug(f"Chargement de {j.tag}")
+
                 if j.tag == "Plante":
                     plante = Plante(j.attrib["Espece"], int(j.attrib["Maturite_pied"]), int(j.attrib["Nb_recolte"]), [
                                     float(j.attrib["Humidite_min"]), float(j.attrib["Humidite_max"])], int(j.attrib["Maturite_fruit"]), float(j.attrib["Surface"]), logger)
@@ -129,28 +134,32 @@ def load_config(conf: str = "config.xml") -> Potager:
                         float(j.attrib["Humidite_min"]), float(j.attrib["Humidite_max"])], int(j.attrib["Maturite_fruit"]), float(j.attrib["Surface"]), logger, float(j.attrib["Proba_Colonisation"]))
                     parcelle.add_plante(plante)
                     nb_drageons += 1
+
                 elif j.tag == "Insecte":
                     insecte = Insecte(j.attrib["Espece"], j.attrib["Sexe"], int(j.attrib["Vie_max"]), int(j.attrib["Duree_vie_max"]), float(
                         j.attrib["Proba_mobilite"]), float(j.attrib["Resistance_insecticide"]), int(j.attrib["Temps_entre_repro"]), int(j.attrib["Max_portee"]), logger)
                     parcelle.add_insect(insecte)
                     nb_insectes += 1
+
                 elif j.tag == "Dispositif":
                     programmes = []
                     for programme in j:
                         programmes.append(
-                            Programme(int(programme.attrib["Debut"]), int(programme.attrib["Duree"]), int(programme.attrib["Periode"]), str(programme.attrib["Produit"]), ))
+                            Programme(int(programme.attrib["Debut"]), int(programme.attrib["Duree"]), int(programme.attrib["Periode"]), str(programme.attrib["Produit"])))
                     dispositif = Dispositif(parcelle, int(
                         j.attrib["Rayon"]), programmes)
                     parcelle.dispositif = dispositif
                     nb_dispositifs += 1
 
-    logger.info(
-        f"Chargement termine : {nb_parcelles} parcelles, {nb_plantes} plantes, {nb_drageons} plantes drageonnantes, {nb_insectes} insectes, {nb_dispositifs} dispositifs")
+    logger.info(f"Chargement termine : {nb_parcelles} parcelles, {nb_plantes} plantes, {nb_drageons} plantes drageonnantes, {nb_insectes} insectes, {nb_dispositifs} dispositifs")
     potager = Potager(matrice, logger)
     return potager
 
 
 def main(args: object) -> None:
+    '''Fonction principale du programme
+    :param args: objet contenant les arguments passes au programme
+    '''
     logger.info("Simulation du potager")
     potager = load_config(args.config)
     if args.interface:
