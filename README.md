@@ -1,6 +1,6 @@
 # Simulation potager
 
-Ce programme simule un potager contenant des parcelles des plantes des insectes et des dispositifs
+Ce programme simule un potager contenant des parcelles, des plantes, des insectes et des dispositifs
 
 ### Installation
 Python 3 est requis
