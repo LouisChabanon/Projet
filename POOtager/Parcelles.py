@@ -1,5 +1,5 @@
 import random
-from Plantes import Plante
+from POOtager.Plantes import Plante
 
 
 class Parcelle:

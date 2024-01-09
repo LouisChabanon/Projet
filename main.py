@@ -4,12 +4,12 @@ import xml.etree.ElementTree as ET
 import datetime
 import time
 
-from Interface import Interface
-from Logger import Logger
-from Parcelles import Parcelle
-from Insectes import Insecte
-from Plantes import Plante, Drageonnante
-from Dispositifs import Dispositif, Programme
+from Utils.Interface import Interface
+from Utils.Logger import Logger
+from POOtager.Parcelles import Parcelle
+from POOtager.Insectes import Insecte
+from POOtager.Plantes import Plante, Drageonnante
+from POOtager.Dispositifs import Dispositif, Programme
 
 
 class Potager():
@@ -95,7 +95,7 @@ class Potager():
         self.create_xml()
 
 
-def load_config(conf: str = "config.xml") -> Potager:
+def load_config(conf: str = "configs/config.xml") -> Potager:
     '''
     Fonction permettant de charger la configuration du potager depuis un fichier XML
     :param conf: chemin vers le fichier XML contenant la configuration du potager
@@ -175,7 +175,7 @@ def main(args: object) -> None:
 if __name__ == "__main__":
     # Argument parsing
     parser = argparse.ArgumentParser(description="Simulateur de potager")
-    parser.add_argument("-c", "--config", type=str, default="config.xml",
+    parser.add_argument("-c", "--config", type=str, default="configs/config.xml",
                         help="Chemin vers le fichier de configuration au format XML")
     parser.add_argument("-n", "--num", type=int, default=100,
                         help="Nombre de tours de simulation")
