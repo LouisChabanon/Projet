@@ -61,6 +61,9 @@ class Insecte():
 
     def get_life_time(self) -> int:
         return self._life_time
+    
+    def get_attributs(self) -> dict:
+        return self.__dict__
 
     life_time = property(get_life_time)
     health = property(get_health, set_health)
@@ -83,13 +86,17 @@ class Insecte():
             None
         '''
         if len(parcelle.get_plantes()) == 0:
+            self._logger.debug(f"L'insecte {self._espece} ne mange pas à sa faim")
             self._health -= 1
-            if self._eat_combo != 0:
+            if self._eat_combo >= 0:
                 self._eat_combo = 0
             else:
                 self._eat_combo -= 1
         else:
-            self._eat_combo += 1
+            if self._eat_combo < 0:
+                self._eat_combo = 0
+            else:
+                self._eat_combo += 1
             if self._eat_combo >= 3:
                 self._health += 1
 
@@ -108,7 +115,7 @@ class Insecte():
         if self._time_since_last_reproduction >= self._tps_reproduction:
             partenaire = parcelle.choose_partenaire(self)
             if partenaire is None:
-                return None
+                return None      
             if self._eat_combo > 0 and partenaire.get_eat_combo() > 0:
                 self._time_since_last_reproduction = 0
                 partenaire.set_time_since_last_reproduction(0)
@@ -120,6 +127,7 @@ class Insecte():
 
                 for i in range(taille_portee):
                     attribus = self.__dict__  # Dictionnaire contenant les attributs de l'insecte
+                    attribus_partenaire = partenaire.get_attributs()  # Dictionnaire contenant les attributs du partenaire
                     pas_mutable = ["_espece", "_sexe", "_logger"]
                     entiers = ["_max_health", "_life_time", "_resistance", "_tps_reproduction", "_taille_max_portee"]
                     mutation = False
@@ -127,7 +135,7 @@ class Insecte():
                     for j in attribus.keys():
                         if random.random() >= 0.5:
                             parite = True  # Au moins un attribut herite du partenaire
-                            attribus[j] = partenaire.__dict__[j]
+                            attribus[j] = attribus_partenaire[j]
                         if random.random() <= 0.05 and not mutation and j not in pas_mutable:
                             mutation = True
                             attribus[j] = np.random.normal(
@@ -144,7 +152,7 @@ class Insecte():
                                 parite = True
                                 attribus[list(attribus.keys())[k]] = partenaire.__dict__[list(attribus.keys())[k]]
 
-                    enfant = Insecte(attribus["_espece"], attribus["_sexe"], attribus["_max_health"], attribus["_life_time"],self._mobilite, self._resistance, self._tps_reproduction, self._taille_max_portee, self._logger)
+                    enfant = Insecte(attribus["_espece"], attribus["_sexe"], attribus["_max_health"], attribus["_life_time"]+ parcelle.get_pas() ,self._mobilite, self._resistance, self._tps_reproduction, self._taille_max_portee, self._logger)
                     enfant.health = int(enfant.health/2)
                     parcelle.add_insect(enfant)
                     self._logger.debug(
@@ -173,7 +181,7 @@ class Insecte():
         '''
         proba = self._mobilite
         if self._eat_combo <= -3:
-            proba = 2*proba
+            proba = min(1,2*proba)
         if self._health <= 20:
             proba = proba/2
         if random.random() <= proba:
@@ -181,6 +189,4 @@ class Insecte():
             parcelle.remove_insect(self)
 
     def mourir(self) -> None:
-        self._logger.debug(
-            f"Mort de l'insecte {self._espece}")
         del self
