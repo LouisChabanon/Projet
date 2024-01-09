@@ -41,7 +41,7 @@ class Dispositif():
                         self._parcelle.set_arrosage(True)
 
             elif pas == programme.debut + programme.duree:
-                programme.debut += programme.periode
+                programme.debut += programme.periode + programme.duree
                 for voisin in self._voisins:
                     if programme.type_produit == Type_Produit.ENGRAIS:
                         self._parcelle.set_engrais(False)
