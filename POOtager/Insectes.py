@@ -187,6 +187,7 @@ class Insecte():
         if random.random() <= proba:
             parcelle.get_voisin_aleatoire().add_insect(self)
             parcelle.remove_insect(self)
+            self._logger.debug("Déplacement de l'insecte {self._espece} dans la parcelle {parcelle.coordonnes}")
 
     def mourir(self) -> None:
         del self

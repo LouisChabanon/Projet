@@ -90,3 +90,5 @@ class Interface():
                     TK.Button(self.fenetre, bg="gray85", text= texte, padx=100, pady=100).grid(row=i+2, column=j+3)
                     if len(self._potager.get_matrice()[i][j].get_plantes()) != 0:
                         TK.Button(self.fenetre, bg="green", text=texte, padx=100, pady=100).grid(row=i+2, column=j+3)
+                    if len(parcelle.get_insects()) >= 500:
+                        TK.Button(self.fenetre, bg="orange", text=texte, padx=100, pady=100).grid(row=i+2, column=j+3)
