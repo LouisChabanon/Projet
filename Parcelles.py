@@ -42,6 +42,9 @@ class Parcelle:
     coordonnes = property(get_coordonees)
     recoltes = property(get_recoltes)
 
+    def get_pas(self):
+        return self._potager.get_pas()
+
     def get_dispositif(self):
         if self._dispositif:
             return self._dispositif
@@ -96,9 +99,16 @@ class Parcelle:
         '''
         Methode choisisant un partenaire pour la reproduction d'un insecte
         '''
-        for i in self._insectes:
+        if len(self._insectes) > 1000:
+            self._logger.warning(f"La parcelle {self._coordonees} est saturee en insectes")
+            return None
+        if self._insectes:
+            partenaire = self._insectes[random.randint(0, len(self._insectes)-1)]
+            if partenaire.get_time_since_last_reproduction() >= partenaire.get_tps_reproduction() and partenaire.get_sexe() != insecte.get_sexe() and partenaire.get_espece() == insecte.get_espece():
+                return partenaire
+        '''for i in self._insectes:
             if i.get_time_since_last_reproduction() >= i.get_tps_reproduction() and i.get_sexe() != insecte.get_sexe() and i.get_espece() == insecte.get_espece():
-                return i
+                return i'''
         return None
 
     def get_voisins(self, rayon: int = 1) -> list[int]:
@@ -172,9 +182,11 @@ class Parcelle:
             i.manger(self)
             if i.get_health() <= 0 or i.life_time < potager.get_pas():
                 self.remove_insect(i)
+                self._logger.debug(f"Mort de l'insecte {i.get_espece()} par vieillesse ou malnutrition")
                 i.mourir()
             elif self._has_insecticide and random.random() >= i.get_resistance():
                 self.remove_insect(i)
+                self._logger.debug(f"Mort de l'insecte {i.get_espece()} par insecticide")
                 i.mourir()
             else:
                 i.bouger(self)
