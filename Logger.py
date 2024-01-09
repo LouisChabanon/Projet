@@ -1,15 +1,19 @@
 import logging
 import datetime
-
+import os
 
 class Logger():
     '''Classe permettant de gerer les logs de la simulation et le rapport final de la simulation au format csv'''
 
     def __init__(self, debug: bool = False) -> None:
         self._debug = debug
+        
+        logs_dir = "logs/"
+        os.makedirs(logs_dir, exist_ok=True)
+        os.makedirs("resultats/", exist_ok=True)
         logging.basicConfig(level=logging.DEBUG,
                             format='%(asctime)s %(levelname)s %(message)s',
-                            datefmt='%H:%M:%S', filename="logs/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S") + "-simulation.log")
+                            datefmt='%H:%M:%S', filename=logs_dir + datetime.datetime.now().strftime("%Y%m%d-%H%M%S") + "-simulation.log")
 
     def debug(self, msg: str) -> None:
         if self._debug:
