@@ -20,12 +20,19 @@ class Potager():
         self._logger = logger
         self._pas = 0
         self._duree = args.num
+        self._interface = None
 
     def get_matrice(self) -> list:
         return self._matrice
     
     def get_logger(self) -> Logger:
         return self._logger
+    
+    def get_interface(self) -> Interface:
+        return self._interface
+    
+    def set_interface(self, interface: Interface) -> None:
+        self._interface = interface
 
     def get_pas(self) -> int:
         return self._pas
@@ -41,6 +48,7 @@ class Potager():
             raise ValueError("La duree doit etre un entier positif")
 
     duree = property(get_duree, set_duree)
+    interface = property(get_interface, set_interface)
 
     def create_xml(self) -> None:
         '''Methode permettant de creer un fichier XML contenant les resultats de la simulation'''
@@ -90,6 +98,9 @@ class Potager():
                         j.update(self)
             self._pas += 1
         end = time.time()
+        # Mise a jour de l'interface à la fin de la simulation
+        if self._interface is not None:
+                self._interface.update()
         logger.info(f"Fin de la simulation en {(end-start):.2} secondes")
         logger.info("Creation du fichier XML")
         self.create_xml()
@@ -165,6 +176,7 @@ def main(args: object) -> None:
     potager = load_config(args.config)
     if args.interface:
         interface = Interface(potager)
+        potager.interface = interface
         interface.start()
         resultats = potager.plot()
         interface.plot_resultat(resultats[0], resultats[1], resultats[2])
@@ -175,7 +187,7 @@ def main(args: object) -> None:
 if __name__ == "__main__":
     # Argument parsing
     parser = argparse.ArgumentParser(description="Simulateur de potager")
-    parser.add_argument("-c", "--config", type=str, default="configs/config.xml",
+    parser.add_argument("-c", "--config", type=str, default="config.xml",
                         help="Chemin vers le fichier de configuration au format XML")
     parser.add_argument("-n", "--num", type=int, default=100,
                         help="Nombre de tours de simulation")
