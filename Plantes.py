@@ -16,7 +16,7 @@ class Plante():
         self._surface = float(surface)
 
         self._maturation = 0
-        self._maturite = 0
+        self._croissance = 0
         self._nb_recoltes = 0
 
         self._logger = logger
@@ -53,8 +53,8 @@ class Plante():
         dev = max(0, (1+int(parcelle.has_engrais())) *
                   (1+1*h - 1*int(parcelle.has_insecte())))
 
-        if self._maturite < self._tps_maturite:
-            self._maturite += dev
+        if self._croissance < self._tps_maturite:
+            self._croissance += dev
         else:
             self._maturation += dev
             if self._maturation >= self._duree_maturation:

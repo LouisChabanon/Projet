@@ -2,6 +2,8 @@
 
 Ce programme simule un potager contenant des parcelles, des plantes, des insectes et des dispositifs
 
+code source: https://github.com/louischabanon/Projet.git
+
 ### Installation
 Python 3 est requis
 
