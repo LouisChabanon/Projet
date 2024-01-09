@@ -23,7 +23,7 @@ class Potager():
 
     def get_matrice(self) -> list:
         return self._matrice
-
+    
     def get_logger(self) -> Logger:
         return self._logger
 
@@ -111,7 +111,7 @@ def load_config(conf: str = "config.xml") -> Potager:
     nb_drageons = 0
     nb_insectes = 0
     nb_dispositifs = 0
-    matrice = [[0 for i in range(20)] for j in range(20)]
+    matrice = [[0 for i in range(int(root.attrib["Size_y"]))] for j in range(int(root.attrib["Size_x"]))]
 
     for i in root:
         if i.tag == "Parcelle":
@@ -159,6 +159,7 @@ def load_config(conf: str = "config.xml") -> Potager:
 def main(args: object) -> None:
     '''Fonction principale du programme
     :param args: objet contenant les arguments passes au programme
+    :return: None
     '''
     logger.info("Simulation du potager")
     potager = load_config(args.config)
