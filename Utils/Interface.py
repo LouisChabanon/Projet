@@ -30,9 +30,9 @@ class Interface():
                 if self._potager.get_matrice()[i][j] != 0:
                     parcelle = self._potager.get_matrice()[i][j]
                     texte = f"{parcelle.get_coordonees()}\n{0} récoltes \n insecticide: {parcelle.has_insecticide()}\n{len(parcelle.get_insects())} insectes"
-                    TK.Button(self.fenetre, bg="gray85", text=texte, padx=100, pady=100).grid(row=i+2, column=j+3)
+                    TK.Button(self.fenetre, bg="gray85", text=texte, padx=40, pady=40).grid(row=i+2, column=j+3)
                     if len(self._potager.get_matrice()[i][j].get_plantes()) != 0:
-                        TK.Button(self.fenetre, bg="green", text=texte, padx=100, pady=100).grid(row=i+2, column=j+3)
+                        TK.Button(self.fenetre, bg="green", text=texte, padx=40, pady=40).grid(row=i+2, column=j+3)
 
     def get_nb_pas(self) -> int:
         return self._nb_pas.get()
@@ -87,8 +87,8 @@ class Interface():
                 if self._potager.get_matrice()[i][j] != 0:
                     parcelle = self._potager.get_matrice()[i][j]
                     texte = f"{parcelle.get_coordonees()}\n{parcelle.get_recoltes()[-1][0]} récoltes \n insecticide: {parcelle.has_insecticide()}\n{len(parcelle.get_insects())} insectes"
-                    TK.Button(self.fenetre, bg="gray85", text= texte, padx=100, pady=100).grid(row=i+2, column=j+3)
+                    TK.Button(self.fenetre, bg="gray85", text= texte, padx=40, pady=40).grid(row=i+2, column=j+3)
                     if len(self._potager.get_matrice()[i][j].get_plantes()) != 0:
-                        TK.Button(self.fenetre, bg="green", text=texte, padx=100, pady=100).grid(row=i+2, column=j+3)
+                        TK.Button(self.fenetre, bg="green", text=texte, padx=40, pady=40).grid(row=i+2, column=j+3)
                     if len(parcelle.get_insects()) >= 500:
-                        TK.Button(self.fenetre, bg="orange", text=texte, padx=100, pady=100).grid(row=i+2, column=j+3)
+                        TK.Button(self.fenetre, bg="orange", text=texte, padx=40, pady=40).grid(row=i+2, column=j+3)
